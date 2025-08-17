@@ -1,6 +1,7 @@
 # 베이스 이미지 선택
 FROM python:3.13.6-slim
 
+
 # 시스템 라이브러리 설치 (문제 해결을 위해 임시로 남겨둡니다)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libjpeg-dev \
