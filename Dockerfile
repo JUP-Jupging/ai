@@ -22,6 +22,7 @@ RUN pip install --no-cache-dir --upgrade -r requirements.txt && \
 
 # 프로젝트 전체 코드 복사
 COPY ./app ./app
+COPY ./models ./models
 
 # 컨테이너 내부에서 사용할 포트
 EXPOSE 8082
