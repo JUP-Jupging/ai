@@ -22,7 +22,6 @@ class YOLOService:
         if cls._instance is None:
             cls._instance = YOLOService()
         return cls._instance
-
     def predict(self, img):
         return self.model.predict(
             img, imgsz=settings.IMG_SIZE, conf=settings.CONF,
