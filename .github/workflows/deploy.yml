@@ -1,0 +1,58 @@
+name: Deploy FastAPI To EC2
+
+on:
+  push:
+    branches:
+      - main
+
+# ECR 리포지토리 이름을 변수로 설정
+env:
+  ECR_REPOSITORY_NAME: fastapi-server
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Github Repository 파일 불러오기
+        uses: actions/checkout@v4
+
+      - name: AWS Resource에 접근할 수 있게 AWS credentials 설정
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ap-northeast-2
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: ECR에 로그인하기
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+      
+      - name: Docker 이미지 생성
+        run: docker build -t ${{ env.ECR_REPOSITORY_NAME }} .
+
+      - name: Docker 이미지에 Tag 붙이기
+        run: docker tag ${{ env.ECR_REPOSITORY_NAME }} ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY_NAME }}:latest
+
+      - name: ECR에 Docker 이미지 Push하기
+        run: docker push ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY_NAME }}:latest
+
+      - name: SSH로 EC2에 접속하여 배포하기
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          script_stop: true
+          script: |
+            aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin ${{ steps.login-ecr.outputs.registry }}
+
+            docker stop fastapi || true
+            docker rm fastapi || true
+            
+            docker pull ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY_NAME }}:latest
+            
+            docker run -d \
+              --name fastapi \
+              -p 8082:8082 \
+              --network jupging-network \
+              ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY_NAME }}:latest
