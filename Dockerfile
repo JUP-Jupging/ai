@@ -13,15 +13,10 @@ WORKDIR /app
 
 # 의존성 파일 복사 및 설치
 COPY requirements.txt .
-RUN pip install --no-cache-dir --upgrade -r requirements.txt
 
-# ======================================================================
-# [추가] 설치된 opencv 버전을 강제로 확인하여 로그에 출력하는 명령어
-# ======================================================================
-RUN echo "--- Checking installed opencv packages ---" && \
-    pip list | grep opencv && \
-    echo "----------------------------------------"
-# ======================================================================
+# 의존성 설치 후 문제가 되는 opencv-python을 강제로 삭제
+RUN pip install --no-cache-dir --upgrade -r requirements.txt && \
+    pip uninstall -y opencv-python
 
 # 프로젝트 전체 코드 복사
 COPY ./app ./app
