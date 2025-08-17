@@ -16,7 +16,8 @@ COPY requirements.txt .
 
 # 의존성 설치 후 문제가 되는 opencv-python을 강제로 삭제
 RUN pip install --no-cache-dir --upgrade -r requirements.txt && \
-    pip uninstall -y opencv-python
+    pip uninstall -y opencv-python opencv-python-headless && \
+    pip install opencv-python-headless==4.12.0.88
 
 # 프로젝트 전체 코드 복사
 COPY ./app ./app
