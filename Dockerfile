@@ -8,14 +8,6 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir --upgrade -r requirements.txt
 
-# headless 버전 사용 시 추천 명령어
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    libjpeg-dev \
-    libpng-dev \
-    zlib1g-dev \
-    libfreetype6-dev \
-    && rm -rf /var/lib/apt/lists/*
-
 # 프로젝트 전체 코드 복사
 COPY ./app ./app
 
