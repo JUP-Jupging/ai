@@ -8,8 +8,13 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir --upgrade -r requirements.txt
 
-# OpenCV 실행에 필요한 시스템 라이브러리 설치
-RUN apt-get update && apt-get install -y libgl1
+# headless 버전 사용 시 추천 명령어
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libjpeg-dev \
+    libpng-dev \
+    zlib1g-dev \
+    libfreetype6-dev \
+    && rm -rf /var/lib/apt/lists/*
 
 # 프로젝트 전체 코드 복사
 COPY ./app ./app
