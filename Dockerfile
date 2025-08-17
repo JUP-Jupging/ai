@@ -16,4 +16,4 @@ EXPOSE 8082
 
 # 컨테이너 시작 명령어
 # 0.0.0.0 호스트로 실행해야 외부에서 접근 가능합니다.
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8082"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8082"]
