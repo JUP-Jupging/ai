@@ -30,10 +30,8 @@ jobs:
       #   id: login-ecr
       #   uses: aws-actions/amazon-ecr-login@v2
       - name: ECR Public에 로그인하기
-        uses: aws-actions/amazon-ecr-login@v2
-        with:
-          registry-type: public
-          region: us-east-1
+        run: |
+          aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws
       
       - name: Docker 이미지 생성
         run: docker build -t ${{ env.ECR_REPOSITORY_NAME }} .
@@ -57,6 +55,7 @@ jobs:
           script_stop: true
           # aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin ${{ steps.login-ecr.outputs.registry }}
           # docker pull ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY_NAME }}:latest
+          # ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY_NAME }}:latest
           script: |
             aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${{ env.ECR_PUBLIC_REGISTRY }}
 
@@ -69,4 +68,4 @@ jobs:
               --name fastapi \
               -p 8082:8082 \
               --network jupging-network \
-              ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY_NAME }}:latest
+              ${{ env.ECR_PUBLIC_REGISTRY }}/${{ env.ECR_REPOSITORY_NAME }}:latest
