@@ -29,7 +29,7 @@ def health():
 # ==== 배포용 별칭 경로 ====
 # /ai/detect -> 기존 /v1/trash/predict와 동일 핸들러 재사용
 app.add_api_route(
-    path="/ai/detect",
+    path="/detect",
     endpoint=trash_predict,
     methods=["POST"],
     tags=["ai"]
