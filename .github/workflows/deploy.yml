@@ -32,7 +32,7 @@ jobs:
       - name: ECR Public에 로그인하기
         uses: aws-actions/amazon-ecr-login@v2
         with:
-        registry-type: public
+          registry-type: public
       
       - name: Docker 이미지 생성
         run: docker build -t ${{ env.ECR_REPOSITORY_NAME }} .
