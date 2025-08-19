@@ -14,7 +14,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN apt-get update && apt-get install -y --no-install-recommends curl
 RUN apt-get install -y --no-install-recommends unzip
 RUN apt-get install -y --no-install-recommends ca-certificates
-RUN apt-get install -y --no-install-recommends libaio1
+RUN apt-get install -y --no-install-recommends libaio1t64
 RUN apt-get install -y --no-install-recommends libnsl2 # 아마 여기서 오류가 날 가능성이 높습니다.
 RUN rm -rf /var/lib/apt/lists/*
 
