@@ -1,13 +1,28 @@
 # 베이스 이미지 선택
-FROM python:3.13.6-slim
+FROM python:3.13-slim
 
 
-# 시스템 라이브러리 설치 (문제 해결을 위해 임시로 남겨둡니다)
+# 시스템 라이브러리 설치
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libjpeg-dev \
     libpng-dev \
     zlib1g-dev \
     && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl unzip ca-certificates libaio1 libnsl2 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Oracle Instant Client 설치
+ARG IC_VER_DIR=instantclient_23_9
+ARG IC_ZIP=instantclient-basiclite-linux.x64-23.9.0.25.07.zip
+COPY docker/instantclient/${IC_ZIP} /tmp/${IC_ZIP}
+RUN mkdir -p /opt/oracle \
+ && unzip /tmp/${IC_ZIP} -d /opt/oracle \
+ && rm /tmp/${IC_ZIP}
+
+# 런타임에서 클라이언트 찾도록 환경변수
+ENV LD_LIBRARY_PATH=/opt/oracle/${IC_VER_DIR}
+ENV ORACLE_CLIENT_LIB_DIR=/opt/oracle/${IC_VER_DIR}
 
 # 작업 디렉토리 설정
 WORKDIR /app
@@ -18,7 +33,8 @@ COPY requirements.txt .
 # 의존성 설치 후 문제가 되는 opencv-python을 강제로 삭제
 RUN pip install --no-cache-dir --upgrade -r requirements.txt && \
     pip uninstall -y opencv-python opencv-python-headless && \
-    pip install opencv-python-headless==4.12.0.88
+    pip install opencv-python-headless==4.12.0.88 && \
+    pip install --no-cache-dir --upgrade pip setuptools wheel
 
 # 프로젝트 전체 코드 복사
 COPY ./app ./app
