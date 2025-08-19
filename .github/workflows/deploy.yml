@@ -6,8 +6,11 @@ on:
       - main
 
 # ECR 리포지토리 이름을 변수로 설정
+# env:
+#   ECR_REPOSITORY_NAME: fastapi-server
 env:
-  ECR_REPOSITORY_NAME: fastapi-server
+  ECR_REPOSITORY_NAME: fastapi-server-pub 
+  ECR_PUBLIC_REGISTRY: public.ecr.aws/t8l1n4n8
 
 jobs:
   deploy:
@@ -23,18 +26,25 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
-      - name: ECR에 로그인하기
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
+      # - name: ECR에 로그인하기
+      #   id: login-ecr
+      #   uses: aws-actions/amazon-ecr-login@v2
+      - name: ECR Public에 로그인하기
+        run: |
+          aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws
       
       - name: Docker 이미지 생성
         run: docker build -t ${{ env.ECR_REPOSITORY_NAME }} .
 
+      # - name: Docker 이미지에 Tag 붙이기
+      #   run: docker tag ${{ env.ECR_REPOSITORY_NAME }} ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY_NAME }}:latest
       - name: Docker 이미지에 Tag 붙이기
-        run: docker tag ${{ env.ECR_REPOSITORY_NAME }} ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY_NAME }}:latest
+        run: docker tag ${{ env.ECR_REPOSITORY_NAME }}:latest ${{ env.ECR_PUBLIC_REGISTRY }}/${{ env.ECR_REPOSITORY_NAME }}:latest
 
+      # - name: ECR에 Docker 이미지 Push하기
+      #   run: docker push ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY_NAME }}:latest
       - name: ECR에 Docker 이미지 Push하기
-        run: docker push ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY_NAME }}:latest
+        run: docker push ${{ env.ECR_PUBLIC_REGISTRY }}/${{ env.ECR_REPOSITORY_NAME }}:latest
 
       - name: SSH로 EC2에 접속하여 배포하기
         uses: appleboy/ssh-action@v1.0.3
@@ -43,16 +53,19 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           script_stop: true
+          # aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin ${{ steps.login-ecr.outputs.registry }}
+          # docker pull ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY_NAME }}:latest
+          # ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY_NAME }}:latest
           script: |
-            aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin ${{ steps.login-ecr.outputs.registry }}
+            aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${{ env.ECR_PUBLIC_REGISTRY }}
 
             docker stop fastapi || true
             docker rm fastapi || true
             
-            docker pull ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY_NAME }}:latest
+            docker pull ${{ env.ECR_PUBLIC_REGISTRY }}/${{ env.ECR_REPOSITORY_NAME }}:latest
             
             docker run -d \
               --name fastapi \
               -p 8082:8082 \
               --network jupging-network \
-              ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY_NAME }}:latest
+              ${{ env.ECR_PUBLIC_REGISTRY }}/${{ env.ECR_REPOSITORY_NAME }}:latest
