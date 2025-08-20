@@ -1,24 +1,15 @@
 # 베이스 이미지 선택
-FROM python:3.13-slim
-
-# 존재하지 않는 패키지 저장소 목록 파일(/etc/apt/sources.list)을 직접 생성
-RUN rm -f /etc/apt/sources.list.d/debian.sources && \
-    echo "deb http://deb.debian.org/debian trixie main" > /etc/apt/sources.list
+FROM python:3.13
 
 # 시스템 라이브러리 설치
-RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,target=/var/lib/apt,sharing=locked \
-    apt-get update && \
+RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-    # 이미지 처리에 필요한 라이브러리
+    # 이미지 처리를 위해 pip에서 사용하는 라이브러리
     libjpeg-dev \
     libpng-dev \
     zlib1g-dev \
-    # Oracle Instant Client에 필요한 라이브러리
-    unzip \
-    libaio1t64 \
-    libnsl2 && \
-    # 모든 설치가 끝난 후 마지막에 정리합니다.
+    # Oracle Instant Client 압축 해제를 위한 unzip
+    unzip && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
@@ -33,7 +24,6 @@ RUN mkdir -p /opt/oracle \
 # 런타임에서 클라이언트 찾도록 환경변수
 ENV LD_LIBRARY_PATH=/opt/oracle/${IC_VER_DIR}
 ENV ORACLE_CLIENT_LIB_DIR=/opt/oracle/${IC_VER_DIR}
-ENV LD_LIBRARY_PATH=/opt/oracle/${IC_VER_DIR}
 
 # 작업 디렉토리 설정
 WORKDIR /app
