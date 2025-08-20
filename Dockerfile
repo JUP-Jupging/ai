@@ -1,5 +1,5 @@
 # 베이스 이미지 선택
-FROM --platform=linux/arm64 python:3.13-slim
+FROM python:3.13-slim
 
 # 존재하지 않는 패키지 저장소 목록 파일(/etc/apt/sources.list)을 직접 생성
 RUN rm -f /etc/apt/sources.list.d/debian.sources && \
