@@ -26,6 +26,12 @@ RUN mkdir -p /opt/oracle \
 ENV LD_LIBRARY_PATH=/opt/oracle/${IC_VER_DIR}
 ENV ORACLE_CLIENT_LIB_DIR=/opt/oracle/${IC_VER_DIR}
 
+# .deb 패키지 설치 (추가된 부분)
+COPY docker/packages/libaio1_0.3.110-5_amd64.deb /tmp/libaio1_0.3.110-5_amd64.deb
+RUN apt-get update && \
+    apt-get install -y /tmp/libaio1_0.3.110-5_amd64.deb && \
+    rm /tmp/libaio1_0.3.110-5_amd64.deb
+
 # 작업 디렉토리 설정
 WORKDIR /app
 
