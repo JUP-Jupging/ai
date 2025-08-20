@@ -2,9 +2,8 @@
 FROM python:3.13-slim
 
 # 존재하지 않는 패키지 저장소 목록 파일(/etc/apt/sources.list)을 직접 생성
-RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,target=/var/lib/apt,sharing=locked \
-    sh -c 'echo "deb http://deb.debian.org/debian trixie main" > /etc/apt/sources.list'
+RUN rm -f /etc/apt/sources.list.d/debian.sources && \
+    echo "deb http://deb.debian.org/debian trixie main" > /etc/apt/sources.list
 
 # 시스템 라이브러리 설치
 RUN apt-get update && apt-get install -y --no-install-recommends \
