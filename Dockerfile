@@ -16,8 +16,7 @@ RUN apt-get update && \
     curl \
     unzip \
     ca-certificates \
-    libaio1 \
-    libnsl2 && \
+    libaio1 && \
     rm -rf /var/lib/apt/lists/*
 
 # Oracle Instant Client 설치
