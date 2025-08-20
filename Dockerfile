@@ -11,12 +11,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # RUN apt-get update && apt-get install -y --no-install-recommends \
 #     curl unzip ca-certificates libaio1 libnsl2 \
 #     && rm -rf /var/lib/apt/lists/*
-RUN apt-get update && apt-get install -y --no-install-recommends curl
-RUN apt-get install -y --no-install-recommends unzip
-RUN apt-get install -y --no-install-recommends ca-certificates
-RUN apt-get install -y --no-install-recommends libaio1t64
-RUN apt-get install -y --no-install-recommends libnsl2 # 아마 여기서 오류가 날 가능성이 높습니다.
-RUN rm -rf /var/lib/apt/lists/*
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    curl \
+    unzip \
+    ca-certificates \
+    libaio1 \
+    libnsl2 && \
+    rm -rf /var/lib/apt/lists/*
 
 # Oracle Instant Client 설치
 ARG IC_VER_DIR=instantclient_23_9
@@ -29,6 +31,7 @@ RUN mkdir -p /opt/oracle \
 # 런타임에서 클라이언트 찾도록 환경변수
 ENV LD_LIBRARY_PATH=/opt/oracle/${IC_VER_DIR}
 ENV ORACLE_CLIENT_LIB_DIR=/opt/oracle/${IC_VER_DIR}
+ENV LD_LIBRARY_PATH=/opt/oracle/${IC_VER_DIR}
 
 # 작업 디렉토리 설정
 WORKDIR /app
