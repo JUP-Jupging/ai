@@ -4,7 +4,8 @@ from app.core.config import settings
 
 # 라우터: 표준 경로(/v1/trash/predict) & 별칭 경로(/ai/detect) 모두 지원
 from app.routers.trash import router as trash_router, predict as trash_predict
-from app.routers.route import router as route_router
+from app.routers.route import router as route_router, recommend_api as route_recommend_api
+from app.schemas.route import RecommendResponse
 
 app = FastAPI(title="Plogging AI API", version="1.0.0")
 
@@ -33,4 +34,17 @@ app.add_api_route(
     endpoint=trash_predict,
     methods=["POST"],
     tags=["ai"]
+)
+
+# ==== 배포용 별칭 경로 (추천) ====
+# 1) /recommend (루트에 심플 경로)
+app.add_api_route(
+    path="/recommend",
+    endpoint=route_recommend_api,
+    methods=["POST"],
+    response_model=RecommendResponse,
+    tags=["ai"],
+    name="Recommend (alias)",
+    summary="Recommend API (alias)",
+    description="Alias of /v1/route/recommend"
 )
