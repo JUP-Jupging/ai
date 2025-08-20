@@ -48,6 +48,8 @@ jobs:
 
       - name: SSH로 EC2에 접속하여 배포하기
         uses: appleboy/ssh-action@v1.0.3
+        env:
+          DOT_ENV_CONTENTS: ${{ secrets.ENV_FILE }}
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
@@ -58,6 +60,7 @@ jobs:
           # ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY_NAME }}:latest
           script: |
             aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${{ env.ECR_PUBLIC_REGISTRY }}
+            echo "$DOT_ENV_CONTENTS" > .env
 
             docker stop fastapi || true
             docker rm fastapi || true
@@ -68,4 +71,5 @@ jobs:
               --name fastapi \
               -p 8082:8082 \
               --network jupging-network \
+              --env-file ./.env \
               ${{ env.ECR_PUBLIC_REGISTRY }}/${{ env.ECR_REPOSITORY_NAME }}:latest
