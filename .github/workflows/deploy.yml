@@ -33,6 +33,9 @@ jobs:
         run: |
           aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws
       
+      - name: .env 파일 생성
+        run: echo "${{ secrets.ENV_FILE }}" > .env
+
       - name: Docker 이미지 생성
         run: docker build -t ${{ env.ECR_REPOSITORY_NAME }} .
 
@@ -48,8 +51,6 @@ jobs:
 
       - name: SSH로 EC2에 접속하여 배포하기
         uses: appleboy/ssh-action@v1.0.3
-        env:
-          DOT_ENV_CONTENTS: ${{ secrets.ENV_FILE }}
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
@@ -60,7 +61,6 @@ jobs:
           # ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY_NAME }}:latest
           script: |
             aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${{ env.ECR_PUBLIC_REGISTRY }}
-            echo "$DOT_ENV_CONTENTS" > .env
 
             docker stop fastapi || true
             docker rm fastapi || true
