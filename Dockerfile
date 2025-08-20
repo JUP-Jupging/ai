@@ -4,15 +4,12 @@ FROM python:3.13
 # 시스템 라이브러리 설치
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-    # 이미지 처리를 위해 pip에서 사용하는 라이브러리
     libjpeg-dev \
     libpng-dev \
     zlib1g-dev \
-    # Oracle Instant Client 압축 해제를 위한 unzip
-    unzip && \
-    apt-get install -y libaio1 && \
+    unzip \
     apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+    rm -rf /var/lib/apt/lists/*    
 
 # Oracle Instant Client 설치
 ARG IC_VER_DIR=instantclient_23_9
