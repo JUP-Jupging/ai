@@ -7,7 +7,7 @@ RUN apt-get update && \
     libjpeg-dev \
     libpng-dev \
     zlib1g-dev \
-    unzip \
+    unzip && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*    
 
