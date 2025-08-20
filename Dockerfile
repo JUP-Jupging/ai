@@ -10,6 +10,7 @@ RUN apt-get update && \
     zlib1g-dev \
     # Oracle Instant Client 압축 해제를 위한 unzip
     unzip && \
+    apt-get install -y libaio1 && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
