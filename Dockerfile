@@ -16,7 +16,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     zlib1g-dev \
     # Oracle Instant Client에 필요한 라이브러리
     unzip \
-    libaio1 \
+    libaio1t64 \
     libnsl2 && \
     # 모든 설치가 끝난 후 마지막에 정리합니다.
     apt-get clean && \
